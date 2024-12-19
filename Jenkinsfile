@@ -52,11 +52,4 @@ pipeline {
             }
         }
     }
-
-    post {
-        always {
-            echo 'Cleaning up resources...'
-            sh "docker-compose -f ${DOCKER_COMPOSE_PATH} down --remove-orphans || true"
-        }
-    }
 }
