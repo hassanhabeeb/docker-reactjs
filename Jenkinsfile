@@ -16,7 +16,12 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker-compose build'
+                    try {
+                        // Build Docker image using docker-compose
+                        sh "docker-compose -f ${DOCKER_COMPOSE_PATH} build"
+                    } catch (Exception e) {
+                        error "Failed to build Docker image: ${e.message}"
+                    }
                 }
             }
         }
@@ -24,7 +29,12 @@ pipeline {
         stage('Run Application') {
             steps {
                 script {
-                    sh 'docker-compose up -d'
+                    try {
+                        // Run the application
+                        sh "docker-compose -f ${DOCKER_COMPOSE_PATH} up -d"
+                    } catch (Exception e) {
+                        error "Failed to run application: ${e.message}"
+                    }
                 }
             }
         }
@@ -32,8 +42,12 @@ pipeline {
         stage('Test Application') {
             steps {
                 script {
-                    // Replace with your testing steps
-                    sh 'curl -I http://localhost'
+                    try {
+                        // Replace with your actual testing steps
+                        sh 'curl -I http://localhost'
+                    } catch (Exception e) {
+                        error "Application testing failed: ${e.message}"
+                    }
                 }
             }
         }
@@ -42,7 +56,7 @@ pipeline {
     post {
         always {
             echo 'Cleaning up resources...'
-            sh 'docker-compose down --remove-orphans'
+            sh "docker-compose -f ${DOCKER_COMPOSE_PATH} down --remove-orphans || true"
         }
     }
 }
