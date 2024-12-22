@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: react-app:latest # Add this to specify the image tag
     ports:
       - "80:80"
-    container_name: react-app
+    container_name: react-app # Name the container for easier management
