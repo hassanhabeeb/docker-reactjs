@@ -52,10 +52,11 @@ pipeline {
             }
         }
 
-        stage('Push Docker Image to Nexus') {
+      stage('Push Docker Image to Nexus') {
     steps {
         script {
-            withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'admin', passwordVariable: 'nexus@123!')]) {
+            // Fetch the credentials and use them
+            withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                 sh '''
                     echo "$NEXUS_PASS" | docker login -u "$NEXUS_USER" --password-stdin ${NEXUS_REPO_URL}
                     docker push ${NEXUS_REPO_URL}${DOCKER_IMAGE_VERSIONED}
