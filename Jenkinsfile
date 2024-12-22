@@ -52,7 +52,7 @@ pipeline {
             }
         }
 
-         stage('Push Docker Image to Nexus') {
+        stage('Push Docker Image to Nexus') {
             steps {
                 script {
                     // Fetch the credentials and use them
