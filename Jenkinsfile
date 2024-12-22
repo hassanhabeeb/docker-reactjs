@@ -4,9 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = "react-app:latest" // Image name and tag
         DOCKER_COMPOSE_PATH = "./docker-compose.yml"
-        NEXUS_CREDENTIALS = credentials('nexus-cred') // Jenkins credential ID for Nexus credentials
-        SONARQUBE_TOKEN = credentials('react-app') // Jenkins credential ID for SonarQube token
-        NEXUS_REPO_URL = 'http://54.244.211.2:8081/repository/docker/' // Corrected Nexus Docker URL
+        NEXUS_REPO_URL = 'http://54.244.211.2:8081/repository/docker/' // Correct Nexus Docker URL
         SONARQUBE_SERVER = 'sonar' // SonarQube server ID in Jenkins
     }
 
@@ -55,11 +53,10 @@ pipeline {
         stage('Push Docker Image to Nexus') {
             steps {
                 script {
-                    // Fetch the credentials and use them
+                    // Fetch the credentials and use them securely
                     withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                        // Perform Docker login and push
                         sh """
-                            echo "$NEXUS_PASS" | docker login -u "$NEXUS_USER" --password-stdin ${NEXUS_REPO_URL}
+                            echo \$NEXUS_PASS | docker login -u \$NEXUS_USER --password-stdin ${NEXUS_REPO_URL}
                             docker push ${NEXUS_REPO_URL}${DOCKER_IMAGE_VERSIONED}
                         """
                     }
