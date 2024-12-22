@@ -5,8 +5,8 @@ pipeline {
         DOCKER_IMAGE = "react-app:latest" // Image name and tag
         DOCKER_COMPOSE_PATH = "./docker-compose.yml"
         NEXUS_CREDENTIALS = credentials('nexus-cred') // Jenkins credential ID for Nexus credentials
-        SONARQUBE_TOKEN = credentials('react-app1') // Jenkins credential ID for SonarQube token
-        NEXUS_REPO_URL = 'http://54.244.211.2:8081/repository/react-app/'
+        SONARQUBE_TOKEN = credentials('react-app') // Jenkins credential ID for SonarQube token
+        NEXUS_REPO_URL = 'http://54.244.211.2:8081/repository/react-app1/'
         SONARQUBE_SERVER = 'sonar' // SonarQube server ID in Jenkins
     }
 
