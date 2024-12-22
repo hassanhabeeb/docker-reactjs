@@ -58,7 +58,6 @@ pipeline {
                     // Fetch the credentials and use them
                     withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                         sh '''
-                            echo $NEXUS_PASS | docker login -u $NEXUS_USER --password-stdin http://54.244.211.2:8081/repository/react-app1/
                             docker push http://54.244.211.2:8081/repository/react-app1/${DOCKER_IMAGE_VERSIONED}
                         '''
                     }
