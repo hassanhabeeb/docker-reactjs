@@ -7,7 +7,7 @@ pipeline {
         NEXUS_CREDENTIALS = credentials('nexus-cred') // Jenkins credential ID for Nexus credentials
         SONARQUBE_TOKEN = credentials('react-app') // Jenkins credential ID for SonarQube token
         NEXUS_REPO_URL = 'http://54.244.211.2:8081/repository/react-app/'
-        SONARQUBE_SERVER = 'sonar' // SonarQube server ID in Jenkins
+        SONARQUBE_SERVER = '35.162.77.248' // SonarQube server ID in Jenkins
     }
 
     stages {
@@ -21,26 +21,13 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv(SONARQUBE_SERVER) {
-                        sh """
+                        sh '''
                             sonar-scanner \
                             -Dsonar.projectKey=react-app \
                             -Dsonar.sources=. \
-                            -Dsonar.host.url=${env.SONAR_HOST_URL} \
+                            -Dsonar.host.url=http://35.162.77.248/:9000/ \
                             -Dsonar.login=${SONARQUBE_TOKEN}
-                        """
-                    }
-                }
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                script {
-                    try {
-                        // Replace this with actual test commands
-                        sh './run-tests.sh'
-                    } catch (Exception e) {
-                        error "Test execution failed: ${e.message}"
+                        '''
                     }
                 }
             }
@@ -49,12 +36,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    try {
-                        // Build Docker image using docker-compose
-                        sh "docker-compose -f ${DOCKER_COMPOSE_PATH} build"
-                    } catch (Exception e) {
-                        error "Failed to build Docker image: ${e.message}"
-                    }
+                    // Build Docker image using docker-compose
+                    sh "docker-compose -f ${DOCKER_COMPOSE_PATH} build"
                 }
             }
         }
@@ -65,7 +48,7 @@ pipeline {
                     // Get the current timestamp for versioning
                     def timestamp = new Date().format('yyyyMMddHHmmss')
                     env.DOCKER_IMAGE_VERSIONED = "react-app:${timestamp}"
-                    
+
                     // Tag the image with versioned tag
                     sh "docker tag react-app:latest ${DOCKER_IMAGE_VERSIONED}"
                 }
@@ -78,7 +61,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                         // Log in to Nexus Docker registry
                         sh "echo ${NEXUS_PASS} | docker login -u ${NEXUS_USER} --password-stdin ${NEXUS_REPO_URL}"
-                        
+
                         // Push the versioned image
                         sh "docker push ${NEXUS_REPO_URL}${DOCKER_IMAGE_VERSIONED}"
                     }
@@ -89,12 +72,8 @@ pipeline {
         stage('Run Application') {
             steps {
                 script {
-                    try {
-                        // Run the application
-                        sh "docker-compose -f ${DOCKER_COMPOSE_PATH} up -d"
-                    } catch (Exception e) {
-                        error "Failed to run application: ${e.message}"
-                    }
+                    // Run the application
+                    sh "docker-compose -f ${DOCKER_COMPOSE_PATH} up -d"
                 }
             }
         }
