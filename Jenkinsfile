@@ -18,20 +18,21 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-            steps {
-                script {
-                    withSonarQubeEnv(SONARQUBE_SERVER) {
-                        sh """
-                            ${tool 'SonarScanner'}/bin/sonar-scanner \
-                            -Dsonar.projectKey=react-app \
-                            -Dsonar.sources=. \
-                            -Dsonar.host.url=http://35.162.77.248:9000 \
-                            -Dsonar.login=${SONARQUBE_TOKEN}
-                        """
-                    }
-                }
+    steps {
+        script {
+            withSonarQubeEnv('sonar') { // Use the configured SonarQube server name
+                def scannerHome = tool 'sonar' // Use the configured SonarScanner name
+                sh """
+                    ${scannerHome}/bin/sonar-scanner \
+                    -Dsonar.projectKey=react-app \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=http://35.162.77.248:9000 \
+                    -Dsonar.login=${SONARQUBE_TOKEN}
+                """
             }
         }
+    }
+}
 
         stage('Build Docker Image') {
             steps {
