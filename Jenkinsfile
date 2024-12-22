@@ -42,17 +42,18 @@ pipeline {
             }
         }
 
-        stage('Tag Docker Image') {
-            steps {
-                script {
-                    def timestamp = new Date().format('yyyyMMddHHmmss')
-                    env.DOCKER_IMAGE_VERSIONED = "react-app:${timestamp}"
-                    sh "docker tag react-app:latest ${DOCKER_IMAGE_VERSIONED}"
-                }
-            }
+       stage('Tag Docker Image') {
+    steps {
+        script {
+            def timestamp = new Date().format('yyyyMMddHHmmss')
+            // Set the version tag without repeating the image name
+            env.DOCKER_IMAGE_VERSIONED = "${timestamp}"
+            sh "docker tag react-app:latest 54.244.211.2:8081/repository/react-app1/react-app:${DOCKER_IMAGE_VERSIONED}"
         }
+    }
+}
 
-      stage('Push Docker Image to Nexus') {
+ stage('Push Docker Image to Nexus') {
     steps {
         script {
             // Fetch the credentials and use them
@@ -66,6 +67,7 @@ pipeline {
         }
     }
 }
+
 
 
         stage('Run Application') {
