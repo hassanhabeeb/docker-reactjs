@@ -53,14 +53,13 @@ pipeline {
     }
 }
 
- stage('Push Docker Image to Nexus') {
+stage('Push Docker Image to Nexus') {
     steps {
         script {
-            // Fetch the credentials and use them
             withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                // Ensure that the version is properly set
-                def dockerImage = "54.244.211.2:8081/repository/react-app1/react-app:${DOCKER_IMAGE_VERSIONED}"
+                def dockerImage = "54.244.211.2:8083/react-app1/react-app:${DOCKER_IMAGE_VERSIONED}"
                 sh """
+                    echo ${NEXUS_PASS} | docker login 54.244.211.2:8083 -u ${NEXUS_USER} --password-stdin
                     docker push ${dockerImage}
                 """
             }
