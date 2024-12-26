@@ -5,7 +5,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: react-app:latest # Add this to specify the image tag
+    image: react-app:latest # Specify the image tag
     ports:
-      - "80:80"
+      - "80:80" # Map port 80 of the container to port 80 of the host
     container_name: react-app # Name the container for easier management
+    environment:
+      - NODE_ENV=production # Add environment variables if needed
+    restart: always # Ensure the container restarts on failure
