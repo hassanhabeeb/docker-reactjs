@@ -6,7 +6,8 @@ pipeline {
         DOCKER_COMPOSE_PATH = "./docker-compose.yml" // Path to docker-compose.yml
         NEXUS_CREDENTIALS = credentials('nexus-cred') // Jenkins credential ID for Nexus
         SONARQUBE_TOKEN = credentials('react-app') // Jenkins credential ID for SonarQube token
-        NEXUS_REPO_URL = '54.244.211.2:8081/repository/react-app1/' // Nexus repository URL
+        NEXUS_REPO_URL = '54.244.211.2:8081' // Correct Nexus repository URL
+        NEXUS_REPO_NAME = 'react-app1' // Repository name
         SONARQUBE_SERVER = 'sonar' // SonarQube server ID in Jenkins
     }
 
@@ -43,28 +44,27 @@ pipeline {
         }
 
         stage('Tag Docker Image') {
-    steps {
-        script {
-            def timestamp = new Date().format('yyyyMMddHHmmss')
-            env.DOCKER_IMAGE_VERSIONED = "${NEXUS_REPO_URL}react-app:${timestamp}"
-            sh "docker tag react-app:latest ${DOCKER_IMAGE_VERSIONED}"
-        }
-    }
-}
-
-stage('Push Docker Image to Nexus') {
-    steps {
-        script {
-            withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                sh """
-                    echo ${NEXUS_PASS} | docker login 54.244.211.2:8081 --username ${NEXUS_USER} --password-stdin
-                    docker push ${DOCKER_IMAGE_VERSIONED}
-                """
+            steps {
+                script {
+                    def timestamp = new Date().format('yyyyMMddHHmmss')
+                    env.DOCKER_IMAGE_VERSIONED = "${NEXUS_REPO_URL}/${NEXUS_REPO_NAME}/react-app:${timestamp}"
+                    sh "docker tag react-app:latest ${DOCKER_IMAGE_VERSIONED}"
+                }
             }
         }
-    }
-}
 
+        stage('Push Docker Image to Nexus') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                        sh """
+                            echo ${NEXUS_PASS} | docker login ${NEXUS_REPO_URL} --username ${NEXUS_USER} --password-stdin
+                            docker push ${DOCKER_IMAGE_VERSIONED}
+                        """
+                    }
+                }
+            }
+        }
 
         stage('Run Application') {
             steps {
