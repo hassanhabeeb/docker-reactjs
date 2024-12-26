@@ -43,29 +43,28 @@ pipeline {
         }
 
         stage('Tag Docker Image') {
-            steps {
-                script {
-                    def timestamp = new Date().format('yyyyMMddHHmmss')
-                    env.DOCKER_IMAGE_VERSIONED = "${NEXUS_REPO_URL}react-app:${timestamp}"
-                    sh "docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE_VERSIONED}"
-                }
-            }
-        }
-
-       stage('Push Docker Image to Nexus') {
     steps {
         script {
-            // Fetch the credentials and use them
+            def timestamp = new Date().format('yyyyMMddHHmmss')
+            env.DOCKER_IMAGE_VERSIONED = "${NEXUS_REPO_URL}react-app:${timestamp}"
+            sh "docker tag react-app:latest ${DOCKER_IMAGE_VERSIONED}"
+        }
+    }
+}
+
+stage('Push Docker Image to Nexus') {
+    steps {
+        script {
             withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                // Ensure that the version is properly set
-                def dockerImage = "54.244.211.2:8081/repository/react-app1/react-app:${DOCKER_IMAGE_VERSIONED}"
                 sh """
-                    docker push ${dockerImage}
+                    echo ${NEXUS_PASS} | docker login 54.244.211.2:8081 --username ${NEXUS_USER} --password-stdin
+                    docker push ${DOCKER_IMAGE_VERSIONED}
                 """
             }
         }
     }
 }
+
 
         stage('Run Application') {
             steps {
