@@ -6,7 +6,7 @@ pipeline {
         DOCKER_COMPOSE_PATH = "./docker-compose.yml" // Path to docker-compose.yml
         NEXUS_CREDENTIALS = credentials('nexus-cred') // Jenkins credential ID for Nexus
         SONARQUBE_TOKEN = credentials('react-app') // Jenkins credential ID for SonarQube token
-        NEXUS_REPO_URL = '54.244.211.2:8081' // Correct Nexus repository URL
+        NEXUS_REPO_URL = '54.244.211.2:8083' // Correct Docker registry URL
         NEXUS_REPO_NAME = 'react-app1' // Repository name
         SONARQUBE_SERVER = 'sonar' // SonarQube server ID in Jenkins
     }
@@ -21,8 +21,8 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    withSonarQubeEnv(SONARQUBE_SERVER) { // Use the configured SonarQube server ID
-                        def scannerHome = tool 'sonar' // Use the configured SonarScanner tool name
+                    withSonarQubeEnv(SONARQUBE_SERVER) {
+                        def scannerHome = tool 'sonar'
                         sh """
                             ${scannerHome}/bin/sonar-scanner \
                             -Dsonar.projectKey=react-app \
@@ -57,10 +57,10 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'nexus-cred', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                        sh """
-                            echo ${NEXUS_PASS} | docker login ${NEXUS_REPO_URL} --username ${NEXUS_USER} --password-stdin
+                        sh '''
+                            echo $NEXUS_PASS | docker login ${NEXUS_REPO_URL} --username $NEXUS_USER --password-stdin
                             docker push ${DOCKER_IMAGE_VERSIONED}
-                        """
+                        '''
                     }
                 }
             }
